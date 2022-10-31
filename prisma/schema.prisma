@@ -37,7 +37,6 @@ model Kudo {
 type Profile {
   firstName      String
   lastName       String
-  department     Department? @default(MARKETING)
   profilePicture String?
 }
 
@@ -53,12 +52,6 @@ enum Lang {
   PYTHON
 }
 
-enum Department {
-  MARKETING
-  SALES
-  ENGINEERING
-  HR
-}
 
 enum Color {
   RED

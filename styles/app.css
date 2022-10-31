@@ -13,3 +13,9 @@
     height: 100%;
     min-height: 100vmin;
   }
+
+
+.w-kudo {
+  width: 100%;
+  position: center;
+}
