@@ -74,3 +74,17 @@ export const getRecentKudos = async () => {
     },
   });
 };
+
+
+export const deleteKudo = async (id: string) => {
+  await prisma.user.delete({ where: { id } });
+};
+
+
+export const getKudoById = async (userId: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+};

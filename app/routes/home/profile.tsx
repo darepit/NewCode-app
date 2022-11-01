@@ -4,15 +4,10 @@ import { Modal } from "~/components/modal";
 import { useLoaderData, useActionData } from "@remix-run/react"
 import { useState, useRef, useEffect } from "react";
 import { FormField } from '~/components/form-field'
-import { departments } from "~/utils/constants";
-import { SelectBox } from "~/components/select-box";
-
 import { validateName } from "~/utils/validators.server";
 import type { ActionFunction } from "@remix-run/node"
 import { redirect, json } from "@remix-run/node"
 import { getUser, requireUserId, logout } from "~/utils/auth.server";
-import type { Department } from "@prisma/client";
-import { ImageUploader } from '~/components/image-uploader'
 import { updateUser, deleteUser } from "~/utils/user.server";
 
 
@@ -22,7 +17,6 @@ export const action: ActionFunction = async ({ request }) => {
 
     let firstName = form.get('firstName')
     let lastName = form.get('lastName')
-    let department = form.get('department')
     const action = form.get('_action')
 
     switch (action) {
@@ -30,7 +24,6 @@ export const action: ActionFunction = async ({ request }) => {
             if (
                 typeof firstName !== 'string'
                 || typeof lastName !== 'string'
-                || typeof department !== 'string'
             ) {
                 return json({ error: `Invalid Form Data` }, { status: 400 });
             }
@@ -38,16 +31,14 @@ export const action: ActionFunction = async ({ request }) => {
             const errors = {
                 firstName: validateName(firstName),
                 lastName: validateName(lastName),
-                department: validateName(department)
             }
 
             if (Object.values(errors).some(Boolean))
-                return json({ errors, fields: { department, firstName, lastName } }, { status: 400 });
+                return json({ errors, fields: { firstName, lastName } }, { status: 400 });
 
             await updateUser(userId, {
                 firstName,
                 lastName,
-                department: department as Department
             })
             return redirect('/home')
         case 'delete':
@@ -72,8 +63,7 @@ export default function ProfileSettings() {
     const [formData, setFormData] = useState({
         firstName: actionData?.fields?.firstName || user?.profile?.firstName,
         lastName: actionData?.fields?.lastName || user?.profile?.lastName,
-        department: actionData?.fields?.department || (user?.profile?.department || 'MARKETING'),
-        profilePicture: user?.profile?.profilePicture || ''
+       profilePicture: user?.profile?.profilePicture || ''
     })
 
     useEffect(() => {
@@ -90,22 +80,6 @@ export default function ProfileSettings() {
         setFormData(form => ({ ...form, [field]: event.target.value }))
     }
 
-    const handleFileUpload = async (file: File) => {
-        let inputFormData = new FormData()
-        inputFormData.append('profile-pic', file)
-
-        const response = await fetch('/avatar', {
-            method: 'POST',
-            body: inputFormData
-        })
-        const { imageUrl } = await response.json()
-
-        setFormData({
-            ...formData,
-            profilePicture: imageUrl
-        })
-    }
-
     return (
         <Modal isOpen={true} className="w-1/3">
             <div className="p-3">
@@ -114,9 +88,6 @@ export default function ProfileSettings() {
                     {formError}
                 </div>
                 <div className="flex">
-                    <div className="w-1/3">
-                        <ImageUploader onChange={handleFileUpload} imageUrl={formData.profilePicture || ''} />
-                    </div>
                     <div className="flex-1">
                         <form method="post" onSubmit={e => !confirm('Are you sure?') ? e.preventDefault() : true}>
                             <FormField
@@ -132,15 +103,6 @@ export default function ProfileSettings() {
                                 value={formData.lastName}
                                 onChange={e => handleInputChange(e, 'lastName')}
                                 error={actionData?.errors?.lastName}
-                            />
-                            <SelectBox
-                                className="w-full rounded-xl px-3 py-2 text-gray-400"
-                                id="department"
-                                label="Department"
-                                name="department"
-                                options={departments}
-                                value={formData.department}
-                                onChange={e => handleInputChange(e, 'department')}
                             />
                             <button name="_action" value="delete" className="rounded-xl w-full bg-red-300 font-semibold text-white mt-4 px-16 py-2 transition duration-300 ease-in-out hover:bg-red-400 hover:-translate-y-1">
                                 Delete Account

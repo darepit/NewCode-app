@@ -26,19 +26,7 @@ export const sortOptions = [
     value: "date",
   },
   {
-    name: "Sender Name",
-    value: "sender",
-  },
-  {
     name: "Lang",
     value: "lang",
   },
-];
-
-
-export const departments = [
-  { name: "HR", value: "HR" },
-  { name: "Engineering", value: "ENGINEERING" },
-  { name: "Sales", value: "SALES" },
-  { name: "Marketing", value: "MARKETING" },
 ];
